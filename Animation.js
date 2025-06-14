@@ -32,7 +32,7 @@
     }
 
     function createTextImage() {
-        const scaleFactor = 3;
+        const scaleFactor = 2;
         const logoHeight = (isMobile ? 60 : 120) * scaleFactor;
         const customLogoWidth = logoHeight * (image.width / image.height);
 
