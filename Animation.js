@@ -73,8 +73,6 @@
 
     function animate(scale) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         for (let i = 0; i < particles.length; i++) {
             const p = particles[i];
