@@ -84,8 +84,8 @@
             if (dist < maxDist && (isTouching || !('ontouchstart' in window))) {
                 const force = (maxDist - dist) / maxDist;
                 const angle = Math.atan2(dy, dx);
-                p.x = p.baseX - Math.cos(angle) * force * 5;
-                p.y = p.baseY - Math.sin(angle) * force * 5;
+                p.x = p.baseX - Math.cos(angle) * force * 9;
+                p.y = p.baseY - Math.sin(angle) * force * 9;
 
                 ctx.fillStyle = p.scatteredColor;
             } else {
