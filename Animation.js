@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
     canvas.style.position = 'fixed';
@@ -8,10 +8,11 @@
     canvas.style.height = '100%';
     canvas.style.zIndex = '-1'; // Behind everything
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     let isMobile = window.innerWidth < 768;
     let particles = [];
     let textImageData = null;
+    let visiblePoints = [];
     let image = new Image();
     image.src = 'SPa.png';
 
@@ -21,6 +22,7 @@
     image.onload = () => {
         updateCanvasSize();
         const scale = createTextImage();
+        extractVisiblePoints(); // Extract once
         createInitialParticles(scale);
         animate(scale);
     };
@@ -48,25 +50,36 @@
         return logoHeight / image.height;
     }
 
-    function createParticle(scale) {
-        if (!textImageData) return null;
+    function extractVisiblePoints() {
+        visiblePoints = [];
         const data = textImageData.data;
-
-        for (let attempt = 0; attempt < 100; attempt++) {
-            const x = Math.floor(Math.random() * canvas.width);
-            const y = Math.floor(Math.random() * canvas.height);
-            if (data[(y * canvas.width + x) * 4 + 3] > 128) {
-                return { x, y, baseX: x, baseY: y, size: Math.random() + 0.5, color: 'white', scatteredColor: '#4B9CD3', life: Math.random() * 100 + 50 };
+        for (let y = 0; y < canvas.height; y++) {
+            for (let x = 0; x < canvas.width; x++) {
+                const alpha = data[(y * canvas.width + x) * 4 + 3];
+                if (alpha > 128) visiblePoints.push({ x, y });
             }
         }
-        return null;
+    }
+
+    function createParticle() {
+        if (!visiblePoints.length) return null;
+        const { x, y } = visiblePoints[Math.floor(Math.random() * visiblePoints.length)];
+        return {
+            x, y,
+            baseX: x,
+            baseY: y,
+            size: Math.random() + 0.5,
+            color: 'white',
+            scatteredColor: '#4B9CD3',
+            life: Math.random() * 100 + 50
+        };
     }
 
     function createInitialParticles(scale) {
-        const baseParticleCount = 8000;
+        const baseParticleCount = 5000; // reduced from 10000
         const count = Math.floor(baseParticleCount * Math.sqrt((canvas.width * canvas.height) / (1920 * 1080)));
         for (let i = 0; i < count; i++) {
-            const p = createParticle(scale);
+            const p = createParticle();
             if (p) particles.push(p);
         }
     }
@@ -86,7 +99,6 @@
                 const angle = Math.atan2(dy, dx);
                 p.x = p.baseX - Math.cos(angle) * force * 5;
                 p.y = p.baseY - Math.sin(angle) * force * 5;
-
                 ctx.fillStyle = p.scatteredColor;
             } else {
                 p.x += (p.baseX - p.x) * 0.1;
@@ -97,7 +109,7 @@
             ctx.fillRect(p.x, p.y, p.size, p.size);
             p.life--;
             if (p.life <= 0) {
-                const newP = createParticle(scale);
+                const newP = createParticle();
                 particles[i] = newP ? newP : particles.splice(i, 1);
             }
         }
@@ -108,6 +120,7 @@
     window.addEventListener('resize', () => {
         updateCanvasSize();
         const scale = createTextImage();
+        extractVisiblePoints(); // Recalculate on resize
         particles = [];
         createInitialParticles(scale);
     });
