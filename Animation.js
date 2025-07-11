@@ -63,7 +63,7 @@
     }
 
     function createInitialParticles(scale) {
-        const baseParticleCount = 7000;
+        const baseParticleCount = 8000;
         const count = Math.floor(baseParticleCount * Math.sqrt((canvas.width * canvas.height) / (1920 * 1080)));
         for (let i = 0; i < count; i++) {
             const p = createParticle(scale);
@@ -79,13 +79,13 @@
             const dx = mouse.x - p.x;
             const dy = mouse.y - p.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const maxDist = 240;
+            const maxDist = 120;
 
             if (dist < maxDist && (isTouching || !('ontouchstart' in window))) {
                 const force = (maxDist - dist) / maxDist;
                 const angle = Math.atan2(dy, dx);
-                p.x = p.baseX - Math.cos(angle) * force * 9;
-                p.y = p.baseY - Math.sin(angle) * force * 9;
+                p.x = p.baseX - Math.cos(angle) * force * 5;
+                p.y = p.baseY - Math.sin(angle) * force * 5;
 
                 ctx.fillStyle = p.scatteredColor;
             } else {
